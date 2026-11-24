@@ -1,0 +1,89 @@
+{{- $image := or .image "image.raw" -}}
+
+architecture: amd64
+
+actions:
+  - action: debootstrap
+    suite: trixie
+    components:
+      - main
+    variant: minbase
+    #mirror: https://mirror.yandex.ru/debian/
+
+  - action: apt
+    packages:
+      - xfsprogs
+      - linux-image-cloud-amd64
+      - grub-efi-amd64
+      - grub-pc-bin
+      - cloud-init
+      - cloud-guest-utils
+      - systemd-sysv
+      - openssh-server
+      - sudo
+      - curl
+      - ca-certificates
+      - zstd
+      - network-manager
+
+  - action: run
+    chroot: true
+    command: |
+      # Enable essential services
+      systemctl enable ssh NetworkManager cloud-init-main cloud-init-local cloud-init-network cloud-config cloud-final
+
+      # Configure serial console for cloud/hypervisor visibility
+      sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 console=ttyS0,115200n8"/' /etc/default/grub
+      echo 'GRUB_TERMINAL="console serial"' >> /etc/default/grub
+      echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
+
+      # Clean instance-specific state so cloud-init initializes fresh on first boot
+      truncate -s 0 /etc/machine-id
+      rm -f /var/lib/dbus/machine-id
+      rm -f /etc/ssh/ssh_host_*
+      cloud-init clean --logs
+
+  - action: image-partition
+    imagename: {{ $image }}.raw
+    imagesize: 2GB
+    partitiontype: gpt
+    mountpoints:
+      - mountpoint: /
+        partition: root
+      - mountpoint: /boot/efi
+        partition: efi
+        options: [ umask=0077 ]
+    partitions:
+      - name: bios
+        fs: none
+        start: 1MiB
+        end: 2MiB
+        flags: [ bios_grub ]
+      - name: efi
+        fs: fat32
+        start: 2MiB
+        end: 130MiB
+        flags: [ esp ]
+      - name: root
+        fs: xfs
+        start: 130MiB
+        end: 100%
+
+  - action: filesystem-deploy
+    description: Deploy rootfs onto XFS partition
+
+  - action: run
+    chroot: true
+    command: |
+      # Install GRUB for both UEFI and Legacy BIOS
+      ROOT_PART=$(findmnt -n -o SOURCE /)
+      ROOT_DISK="/dev/$(lsblk -no PKNAME "$ROOT_PART")"
+      grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --removable --no-nvram
+      grub-install --target=i386-pc "$ROOT_DISK"
+      update-grub
+
+  - action: run
+    postprocess: true
+    command: |
+      qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "debian-trixie-generic-cloud-xfs.qcow2"
+      rm -f {{ $image }}.raw
