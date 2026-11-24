@@ -1,4 +1,5 @@
 {{- $image := or .image "image.raw" -}}
+{{- $kernel := or .kernel "" -}}
 
 architecture: amd64
 
@@ -13,7 +14,7 @@ actions:
   - action: apt
     packages:
       - xfsprogs
-      - linux-image-cloud-amd64
+      - linux-image{{ $kernel }}-amd64
       - grub-efi-amd64
       - grub-pc-bin
       - cloud-init
@@ -85,5 +86,5 @@ actions:
   - action: run
     postprocess: true
     command: |
-      qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "debian-trixie-generic-cloud-xfs.qcow2"
+      qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "debian-trixie{{ $kernel }}-xfs.qcow2"
       rm -f {{ $image }}.raw

@@ -25,7 +25,9 @@ jobs:
       - name: Build
         run: |
           docker run --rm --device /dev/kvm --user $(id -u) --workdir /recipes --mount "type=bind,source=$(pwd),destination=/recipes" --security-opt label=disable ghcr.io/go-debos/debos:latest debian-bookworm-xfs.yaml
+          docker run --rm --device /dev/kvm --user $(id -u) --workdir /recipes --mount "type=bind,source=$(pwd),destination=/recipes" --security-opt label=disable ghcr.io/go-debos/debos:latest -t kernel:-cloud debian-bookworm-xfs.yaml
           docker run --rm --device /dev/kvm --user $(id -u) --workdir /recipes --mount "type=bind,source=$(pwd),destination=/recipes" --security-opt label=disable ghcr.io/go-debos/debos:latest debian-trixie-xfs.yaml
+          docker run --rm --device /dev/kvm --user $(id -u) --workdir /recipes --mount "type=bind,source=$(pwd),destination=/recipes" --security-opt label=disable ghcr.io/go-debos/debos:latest -t kernel:-cloud debian-trixie-xfs.yaml
 
       - name: Create Release and Upload Assets
         env:
