@@ -9,7 +9,7 @@ actions:
     components:
       - main
     variant: minbase
-    mirror: https://mirror.yandex.ru/debian/
+    #mirror: https://mirror.yandex.ru/debian/
 
   - action: apt
     packages:

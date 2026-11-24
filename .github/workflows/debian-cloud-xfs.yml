@@ -1,0 +1,55 @@
+name: debian-cloud-xfs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/go-debos/debos:latest
+      options: --device=/dev/kvm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bookworm (12)
+        run: debos --fakemachine-backend=kvm debian-bookworm-xfs.yaml
+
+      # - name: Trixie (13)
+      #   run: debos --fakemachine-backend=kvm -t suite:trixie debian-cloud-xfs.yaml
+
+      - name: Create Release and Upload Assets
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh release create "$(date -u +'%Y-%m-%dT%H-%M')" *.qcow2 \
+            --repo "aashipov/vm-images" --latest
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#
+#     steps:
+#       - name: Check if GH_TOKEN is set
+#         run: |
+#           if [ "${{ secrets.GH_TOKEN }}" == '' ]
+#           then
+#             printf "secrets.GH_TOKEN is not set\n"
+#             exit 1
+#           fi
+#
+#       - name: Pull image
+#         run: docker pull ghcr.io/go-debos/debos:latest
+#
+#       - name: Check out repository code
+#         uses: actions/checkout@v5
+#
+#       - name: Build
+#         run: docker run --rm --device /dev/kvm --user $(id -u) --workdir /recipes --mount "type=bind,source=$(pwd),destination=/recipes" --security-opt label=disable ghcr.io/go-debos/debos:latest debian-cloud-xfs.yaml
+#
+#       - name: Create Release and Upload Assets
+#         env:
+#           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+#         run: |
+#           gh release create "$(date -u +'%Y-%m-%dT%H-%M')" *.qcow2 \
+#             --repo "aashipov/vm-images" --latest
