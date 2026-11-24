@@ -10,6 +10,6 @@ go install -v github.com/go-debos/debos/cmd/debos@latest
 ```
 
 ```sh
-debos --disable-fakemachine debian-cloud-xfs.yaml
+debos --disable-fakemachine debian-bookworm-xfs.yaml
 debos --disable-fakemachine -t suite:trixie debian-cloud-xfs.yaml
 ```
