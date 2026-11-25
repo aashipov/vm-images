@@ -1,15 +1,16 @@
-{{- $image := or .image "image.raw" -}}
+{{- $suite := or .suite "bookworm" -}}
 {{- $kernel := or .kernel "" -}}
+{{- $image := or .image (printf "debian-%s%s-xfs" $suite $kernel) -}}
 
 architecture: amd64
 
 actions:
   - action: debootstrap
-    suite: bookworm
+    suite: {{ $suite }}
     components:
       - main
     variant: minbase
-    #mirror: https://mirror.yandex.ru/debian/
+    #mirror: https://yandex.ru
 
   - action: apt
     packages:
@@ -32,8 +33,12 @@ actions:
     chroot: true
     command: |
       # Enable essential services
-      systemctl enable ssh NetworkManager qemu-guest-agent 
+      systemctl enable ssh NetworkManager qemu-guest-agent
+      {{- if eq $suite "bookworm" }}
       systemctl enable cloud-init-local cloud-init cloud-config cloud-final
+      {{- else }}
+      systemctl enable cloud-init-main cloud-init-local cloud-init-network cloud-config cloud-final
+      {{- end }}
 
       # Configure serial console for cloud/hypervisor visibility
       sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 console=ttyS0,115200n8"/' /etc/default/grub
@@ -92,5 +97,5 @@ actions:
   - action: run
     postprocess: true
     command: |
-      qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "debian-bookworm{{ $kernel }}-xfs.qcow2"
+      qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "{{ $image }}.qcow2"
       rm -f {{ $image }}.raw
