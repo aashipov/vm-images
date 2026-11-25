@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<image schemaversion="7.4" name="debian">
+    <description type="system">
+        <author>Admin</author>
+        <contact>admin@example.com</contact>
+        <specification
+        >Debian Bookworm and Trixie Cloud-inir Images on XFS</specification>
+    </description>
+
+    <!-- Four Profiles: Suite x Kernel -->
+    <profiles>
+        <profile
+            name="bookworm"
+            description="Debian Bookworm (Regular Kernel)"
+        />
+        <profile
+            name="bookworm-cloud"
+            description="Debian Bookworm (Cloud Kernel)"
+        />
+        <profile name="trixie" description="Debian Trixie (Regular Kernel)" />
+        <profile
+            name="trixie-cloud"
+            description="Debian Trixie (Cloud Kernel)"
+        />
+    </profiles>
+
+    <!-- Preferences per Profile -->
+    <preferences profiles="bookworm">
+        <type
+            image="oem"
+            filesystem="xfs"
+            firmware="efi"
+            format="qcow2"
+            bootpartition="false"
+            efipartsize="128"
+            initrd_system="none"
+        >
+            <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+
+            <size unit="G">2</size>
+        </type>
+        <version>bookworm-xfs</version>
+        <packagemanager>apt</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+
+    <preferences profiles="bookworm-cloud">
+        <type
+            image="oem"
+            filesystem="xfs"
+            firmware="efi"
+            format="qcow2"
+            bootpartition="false"
+            efipartsize="128"
+            initrd_system="none"
+        >
+            <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+            <size unit="G">2</size>
+        </type>
+        <version>bookworm-xfs</version>
+        <packagemanager>apt</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+
+    <preferences profiles="trixie">
+        <type
+            image="oem"
+            filesystem="xfs"
+            firmware="uefi"
+            format="qcow2"
+            bootpartition="false"
+            efipartsize="128"
+            initrd_system="none"
+        >
+            <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+            <size unit="G">2</size>
+        </type>
+        <version>trixie-xfs</version>
+        <packagemanager>apt</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+
+    <preferences profiles="trixie-cloud">
+        <type
+            image="oem"
+            filesystem="xfs"
+            firmware="uefi"
+            format="qcow2"
+            bootpartition="false"
+            efipartsize="128"
+            initrd_system="none"
+        >
+            <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+            <size unit="G">2</size>
+        </type>
+        <version>trixie-xfs</version>
+        <packagemanager>apt</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+
+    <!-- Repositories mapped by suite profiles
+    https://deb.debian.org/debian
+    https://mirror.yandex.ru/debian
+    -->
+    <repository
+        type="apt-deb"
+        distribution="bookworm"
+        components="main"
+        use_for_bootstrap="true"
+        profiles="bookworm,bookworm-cloud"
+    >
+        <source path="https://deb.debian.org/debian">
+            <signing
+                key="file:///usr/share/keyrings/debian-archive-keyring.gpg"
+            />
+        </source>
+    </repository>
+    <repository
+        type="apt-deb"
+        distribution="trixie"
+        components="main"
+        use_for_bootstrap="true"
+        profiles="trixie,trixie-cloud"
+    >
+        <source path="https://deb.debian.org/debian">
+            <signing key="file:///etc/apt/debian-archive-keyring.asc" />
+        </source>
+    </repository>
+
+    <!-- Common Packages across all profiles -->
+    <packages type="image">
+        <package name="xfsprogs" />
+        <package name="grub-efi-amd64" />
+        <package name="grub-pc-bin" />
+        <package name="cloud-init" />
+        <package name="cloud-guest-utils" />
+        <package name="openssh-server" />
+        <package name="sudo" />
+        <package name="curl" />
+        <package name="ca-certificates" />
+        <package name="zstd" />
+        <package name="network-manager" />
+        <package name="qemu-guest-agent" />
+    </packages>
+
+    <!-- Regular Kernel Packages (Bookworm & Trixie) -->
+    <packages type="image" profiles="bookworm,trixie">
+        <package name="linux-image-amd64" />
+        <package name="firmware-linux-free" />
+    </packages>
+
+    <!-- Cloud Kernel Packages (Bookworm & Trixie) -->
+    <packages type="image" profiles="bookworm-cloud,trixie-cloud">
+        <package name="linux-image-cloud-amd64" />
+    </packages>
+
+    <!-- Minimal Bootstrap Packages -->
+    <packages type="bootstrap">
+        <package name="apt" />
+        <package name="ca-certificates" />
+        <package name="debian-archive-keyring" />
+    </packages>
+
+    <users>
+        <user home="/root" name="root" password="root" pwdformat="plain" />
+    </users>
+
+</image>
