@@ -68,6 +68,9 @@ jobs:
 #           cd kiwi-ng-debian
 #           docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie-cloud/debian.x86_64-trixie-cloud-xfs.qcow2 /work/debian-trixie-cloud-xfs.qcow2
 
+      - name: Fix access rights
+        run: sudo chown -R `id -u`:`id -g` kiwi-ng-debian
+        
       - name: Create Release and Upload Assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
