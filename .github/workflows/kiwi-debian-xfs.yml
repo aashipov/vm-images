@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Check if GH_TOKEN is set
         run: |
-          if [ "${{ secrets.GH_TOKEN }}" == '' ]
+          if [ "${{ secrets.GH_TOKEN }}" = '' ]
           then
             printf "secrets.GH_TOKEN is not set\n"
             exit 1
@@ -68,8 +68,10 @@ jobs:
           cd kiwi-ng-debian
           docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie-cloud/debian.x86_64-trixie-cloud-xfs.qcow2 /work/debian-trixie-cloud-xfs.qcow2
 
+      - name: Fix access rights
+        run: sudo chown -R `id -u`:`id -g` kiwi-ng-debian
+
       - name: Create Release and Upload Assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          gh release create "$(date -u +'%Y-%m-%dT%H-%M')" kiwi-ng-debian/*.qcow2 --repo "aashipov/vm-images" --latest
+        run: find kiwi-ng-debian -type f -name '*.qcow2' -exec gh release create "$(date -u +%Y-%m-%dT%H-%M)" --repo aashipov/vm-images --latest {} +
