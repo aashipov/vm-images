@@ -67,7 +67,7 @@
             />
             <size unit="G">2</size>
         </type>
-        <version>bookworm-xfs</version>
+        <version>bookworm-cloud-xfs</version>
         <packagemanager>apt</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
@@ -113,7 +113,7 @@
             />
             <size unit="G">2</size>
         </type>
-        <version>trixie-xfs</version>
+        <version>trixie-cloud-xfs</version>
         <packagemanager>apt</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>

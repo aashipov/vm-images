@@ -8,8 +8,16 @@ docker build -t kiwi-debian .
 
 ```sh
 sudo rm -rf ./bookworm
-docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian --profile=bookworm --type=oem system build --description=/work/src --target-dir=/work/bookworm
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=bookworm --type=oem system build --description=/work/src --target-dir=/work/bookworm
+
+docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm/debian.x86_64-bookworm-xfs.qcow2 /work/debian-bookworm-xfs.qcow2
+
+sudo rm -rf ./bookworm-cloud
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=bookworm-cloud --type=oem system build --description=/work/src --target-dir=/work/bookworm-cloud
 
 sudo rm -rf ./trixie
-docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian --profile=trixie --type=oem system build --description=/work/src --target-dir=/work/trixie
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie --type=oem system build --description=/work/src --target-dir=/work/trixie
+
+sudo rm -rf ./trixie-cloud
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie-cloud --type=oem system build --description=/work/src --target-dir=/work/trixie-cloud
 ```

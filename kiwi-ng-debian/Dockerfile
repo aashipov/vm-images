@@ -31,6 +31,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && /opt/kiwi/bin/pip install --no-cache-dir kiwi \
     && ln -s /opt/kiwi/bin/kiwi-ng /usr/local/bin/kiwi-ng \
     && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /work
-ENTRYPOINT ["kiwi-ng"]
