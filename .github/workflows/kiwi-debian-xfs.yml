@@ -14,7 +14,7 @@ jobs:
           then
             printf "secrets.GH_TOKEN is not set\n"
             exit 1
-          fi  
+          fi
 
       - name: Check out repository code
         uses: actions/checkout@v5
@@ -45,6 +45,28 @@ jobs:
         run: |
           cd kiwi-ng-debian
           docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm-cloud/debian.x86_64-bookworm-cloud-xfs.qcow2 /work/debian-bookworm-cloud-xfs.qcow2
+
+      - name: Trixie
+        run: |
+          cd kiwi-ng-debian
+          sudo rm -rf ./trixie
+          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie --type=oem system build --description=/work/src --target-dir=/work/trixie
+
+      - name: Trixie zstd
+        run: |
+          cd kiwi-ng-debian
+          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie/debian.x86_64-trixie-xfs.qcow2 /work/debian-trixie-xfs.qcow2
+
+      - name: Trixie cloud
+        run: |
+          cd kiwi-ng-debian
+          sudo rm -rf ./trixie-cloud
+          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie-cloud --type=oem system build --description=/work/src --target-dir=/work/trixie-cloud
+
+      - name: Trixie cloud zstd
+        run: |
+          cd kiwi-ng-debian
+          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie-cloud/debian.x86_64-trixie-cloud-xfs.qcow2 /work/debian-trixie-cloud-xfs.qcow2
 
       - name: Create Release and Upload Assets
         env:
