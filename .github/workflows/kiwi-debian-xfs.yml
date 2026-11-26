@@ -33,7 +33,18 @@ jobs:
       - name: Bookworm zstd
         run: |
           cd kiwi-ng-debian
-          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm/debian.x86_64-bookworm-xfs.qcow2 /work/debian-bookworm-xfs.qcow2  
+          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm/debian.x86_64-bookworm-xfs.qcow2 /work/debian-bookworm-xfs.qcow2
+
+      - name: Bookworm cloud
+        run: |
+          cd kiwi-ng-debian
+          sudo rm -rf ./bookworm-cloud
+          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=bookworm-cloud --type=oem system build --description=/work/src --target-dir=/work/bookworm-cloud
+
+      - name: Bookworm cloud zstd
+        run: |
+          cd kiwi-ng-debian
+          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm-cloud/debian.x86_64-bookworm-cloud-xfs.qcow2 /work/debian-bookworm-cloud-xfs.qcow2
 
       - name: Create Release and Upload Assets
         env:
