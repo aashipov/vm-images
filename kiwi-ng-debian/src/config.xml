@@ -76,7 +76,7 @@
         <type
             image="oem"
             filesystem="xfs"
-            firmware="uefi"
+            firmware="efi"
             format="qcow2"
             bootpartition="false"
             efipartsize="128"
@@ -99,7 +99,7 @@
         <type
             image="oem"
             filesystem="xfs"
-            firmware="uefi"
+            firmware="efi"
             format="qcow2"
             bootpartition="false"
             efipartsize="128"
@@ -143,12 +143,16 @@
         profiles="trixie,trixie-cloud"
     >
         <source path="https://deb.debian.org/debian">
-            <signing key="file:///etc/apt/debian-archive-keyring.asc" />
+            <signing
+                key="file:///usr/share/keyrings/debian-archive-keyring.gpg"
+            />
         </source>
     </repository>
 
     <!-- Common Packages across all profiles -->
     <packages type="image">
+        <package name="login" />
+        <package name="systemd-sysv" />
         <package name="xfsprogs" />
         <package name="grub-efi-amd64" />
         <package name="grub-pc-bin" />

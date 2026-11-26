@@ -10,9 +10,27 @@ systemctl enable qemu-guest-agent
 case "${kiwi_profiles}" in
     bookworm*)
         systemctl enable cloud-init-local cloud-init cloud-config cloud-final
+cat << 'EOF' > /etc/apt/sources.list
+deb https://deb.debian.org/debian bookworm main
+deb https://deb.debian.org/debian bookworm-updates main
+deb https://security.debian.org/debian-security bookworm-security main
+EOF
         ;;
     trixie*)
         systemctl enable cloud-init-main cloud-init-local cloud-init-network cloud-config cloud-final
+cat << 'EOF' > /etc/apt/sources.list.d/debian.sources
+Types: deb
+URIs: https://deb.debian.org/debian
+Suites: trixie trixie-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: https://security.debian.org/debian-security
+Suites: trixie-security
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+EOF
         ;;
 esac
 

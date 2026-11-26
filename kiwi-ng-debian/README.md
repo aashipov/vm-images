@@ -8,5 +8,8 @@ docker build -t kiwi-debian .
 
 ```sh
 sudo rm -rf ./bookworm
-docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work kiwi-debian --profile=bookworm --type=oem system build --description=/work/src --target-dir=/work/bookworm
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian --profile=bookworm --type=oem system build --description=/work/src --target-dir=/work/bookworm
+
+sudo rm -rf ./trixie
+docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian --profile=trixie --type=oem system build --description=/work/src --target-dir=/work/trixie
 ```
