@@ -83,4 +83,4 @@ jobs:
       - name: Create Release and Upload Assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: sudo -E find . -type f -name '*.qcow2' -exec gh release create "$(date -u +%Y-%m-%dT%H-%M)" --repo aashipov/vm-images --latest {} +
+        run: sudo GH_TOKEN="$GH_TOKEN" find . -type f -name '*.qcow2' -exec gh release create "$(date -u +%Y-%m-%dT%H-%M)" --repo aashipov/vm-images --latest {} +
