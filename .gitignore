@@ -1,4 +1,6 @@
 kiwi-ng-debian/bookworm*/
 kiwi-ng-debian/trixie*/
 kiwi-ng-debian/kiwi-cache/
+kiwi-ng-arch/arch
+kiwi-ng-arch/kiwi-cache/
 *.qcow2

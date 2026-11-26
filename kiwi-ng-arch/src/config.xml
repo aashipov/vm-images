@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<image schemaversion="7.4" name="archlinux">
+    <description type="system">
+        <author>Admin</author>
+        <contact>admin@example.com</contact>
+        <specification>Arch Linux Cloud-init Image on XFS</specification>
+    </description>
+
+    <preferences>
+        <type
+            image="oem"
+            filesystem="xfs"
+            firmware="efi"
+            format="qcow2"
+            bootpartition="false"
+            efipartsize="128"
+            initrd_system="none"
+        >
+            <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+            <size unit="G">2</size>
+        </type>
+        <version>xfs</version>
+        <packagemanager>pacman</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+
+    <repository alias="core" use_for_bootstrap="true">
+        <source path="https://fastly.mirror.pkgbuild.com/$repo/os/$arch" />
+    </repository>
+    <repository alias="extra" use_for_bootstrap="true">
+        <source path="https://fastly.mirror.pkgbuild.com/$repo/os/$arch" />
+    </repository>
+
+    <packages type="image">
+        <package name="base" />
+        <package name="linux" />
+        <package name="xfsprogs" />
+        <package name="grub" />
+        <package name="efibootmgr" />
+        <package name="cloud-init" />
+        <package name="cloud-guest-utils" />
+        <package name="openssh" />
+        <package name="sudo" />
+        <package name="curl" />
+        <package name="ca-certificates" />
+        <package name="zstd" />
+        <package name="networkmanager" />
+        <package name="qemu-guest-agent" />
+        <package name="mkinitcpio" />
+    </packages>
+
+    <packages type="bootstrap">
+        <package name="filesystem" />
+        <package name="pacman" />
+        <package name="archlinux-keyring" />
+    </packages>
+
+    <users>
+        <user home="/root" name="root" password="root" pwdformat="plain" />
+    </users>
+</image>
