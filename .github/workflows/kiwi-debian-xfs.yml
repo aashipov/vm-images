@@ -70,6 +70,16 @@ jobs:
 
       - name: Create Release and Upload Assets
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$(date -u +'%Y-%m-%dT%H-%M')" kiwi-ng-debian/*.qcow2 --repo "aashipov/vm-images" --latest
+          shopt -s globstar nullglob
+          files=(kiwi-ng-debian/**/*.qcow2)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No .qcow2 files found!"
+            exit 1
+          fi
+
+          gh release create "$(date -u +%Y-%m-%dT%H-%M)" "${files[@]}" \
+            --repo aashipov/vm-images \
+            --latest
