@@ -1,4 +1,4 @@
-name: kiwi-debian-xfs
+name: kiwi-xfs
 
 on:
   workflow_dispatch:
@@ -19,7 +19,19 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
 
-      - name: Build image
+      - name: kiwi-arch
+        run: |
+          cd kiwi-ng-arch
+          docker build -t kiwi-arch .
+
+      - name: arch
+        run: |
+          cd kiwi-ng-arch
+          sudo rm -rf ./arch
+          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-arch kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/arch
+          docker run --rm -v "$(pwd)":/work kiwi-arch qemu-img convert -O qcow2 -c -o compression_type=zstd /work/arch/archlinux.x86_64-xfs.qcow2 /work/archlinux-xfs.qcow2
+
+      - name: kiwi-debian
         run: |
           cd kiwi-ng-debian
           docker build -t kiwi-debian .
@@ -68,10 +80,7 @@ jobs:
           cd kiwi-ng-debian
           docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie-cloud/debian.x86_64-trixie-cloud-xfs.qcow2 /work/debian-trixie-cloud-xfs.qcow2
 
-      - name: Fix access rights
-        run: sudo chown -R `id -u`:`id -g` kiwi-ng-debian
-
       - name: Create Release and Upload Assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: find kiwi-ng-debian -type f -name '*.qcow2' -exec gh release create "$(date -u +%Y-%m-%dT%H-%M)" --repo aashipov/vm-images --latest {} +
+        run: sudo GH_TOKEN="$GH_TOKEN" find . -type f -name '*.qcow2' -exec gh release create "$(date -u +%Y-%m-%dT%H-%M)" --repo aashipov/vm-images --latest {} +
