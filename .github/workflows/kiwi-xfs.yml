@@ -10,75 +10,47 @@ jobs:
     steps:
       - name: Check if GH_TOKEN is set
         run: |
-          if [ "${{ secrets.GH_TOKEN }}" = '' ]
+          if [ -z "${{ secrets.GH_TOKEN }}" ]
           then
-            printf "secrets.GH_TOKEN is not set\n"
+            printf 'secrets.GH_TOKEN is not set\n' >&2
             exit 1
           fi
 
       - name: Check out repository code
         uses: actions/checkout@v5
 
-      - name: kiwi-arch
+      - name: Build Arch image
+        working-directory: kiwi-ng-arch
         run: |
-          cd kiwi-ng-arch
           docker build -t kiwi-arch .
-
-      - name: arch
-        run: |
-          cd kiwi-ng-arch
           sudo rm -rf ./arch
-          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-arch kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/arch
-          docker run --rm -v "$(pwd)":/work kiwi-arch qemu-img convert -O qcow2 -c -o compression_type=zstd /work/arch/archlinux.x86_64-xfs.qcow2 /work/archlinux-xfs.qcow2
+          docker run --rm --privileged \
+            -v /dev:/dev \
+            -v "$(pwd)":/work \
+            -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
+            kiwi-arch kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/arch
+          docker run --rm \
+            -v "$(pwd)":/work \
+            kiwi-arch qemu-img convert -O qcow2 -c -o compression_type=zstd /work/arch/archlinux.x86_64-xfs.qcow2 /work/archlinux-xfs.qcow2
 
-      - name: kiwi-debian
+      - name: Build Debian images
+        working-directory: kiwi-ng-debian
         run: |
-          cd kiwi-ng-debian
           docker build -t kiwi-debian .
-
-      - name: Bookworm
-        run: |
-          cd kiwi-ng-debian
-          sudo rm -rf ./bookworm
-          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=bookworm --type=oem system build --description=/work/src --target-dir=/work/bookworm
-
-      - name: Bookworm zstd
-        run: |
-          cd kiwi-ng-debian
-          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm/debian.x86_64-bookworm-xfs.qcow2 /work/debian-bookworm-xfs.qcow2
-
-      - name: Bookworm cloud
-        run: |
-          cd kiwi-ng-debian
-          sudo rm -rf ./bookworm-cloud
-          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=bookworm-cloud --type=oem system build --description=/work/src --target-dir=/work/bookworm-cloud
-
-      - name: Bookworm cloud zstd
-        run: |
-          cd kiwi-ng-debian
-          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/bookworm-cloud/debian.x86_64-bookworm-cloud-xfs.qcow2 /work/debian-bookworm-cloud-xfs.qcow2
-
-      - name: Trixie
-        run: |
-          cd kiwi-ng-debian
-          sudo rm -rf ./trixie
-          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie --type=oem system build --description=/work/src --target-dir=/work/trixie
-
-      - name: Trixie zstd
-        run: |
-          cd kiwi-ng-debian
-          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie/debian.x86_64-trixie-xfs.qcow2 /work/debian-trixie-xfs.qcow2
-
-      - name: Trixie cloud
-        run: |
-          cd kiwi-ng-debian
-          sudo rm -rf ./trixie-cloud
-          docker run --rm --privileged -v /dev:/dev -v "$(pwd)":/work -v "$(pwd)/kiwi-cache":/var/cache/kiwi  kiwi-debian kiwi-ng --profile=trixie-cloud --type=oem system build --description=/work/src --target-dir=/work/trixie-cloud
-
-      - name: Trixie cloud zstd
-        run: |
-          cd kiwi-ng-debian
-          docker run --rm -v "$(pwd)":/work kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd /work/trixie-cloud/debian.x86_64-trixie-cloud-xfs.qcow2 /work/debian-trixie-cloud-xfs.qcow2
+          for profile in bookworm bookworm-cloud trixie trixie-cloud
+          do
+            echo "::group::Building $profile"
+            sudo rm -rf "./${profile}"
+            docker run --rm --privileged \
+              -v /dev:/dev \
+              -v "$(pwd)":/work \
+              -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
+              kiwi-debian kiwi-ng --profile="${profile}" --type=oem system build --description=/work/src --target-dir="/work/${profile}"
+            docker run --rm \
+              -v "$(pwd)":/work \
+              kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd "/work/${profile}/debian.x86_64-${profile}-xfs.qcow2" "/work/debian-${profile}-xfs.qcow2"
+            echo "::endgroup::$profile"
+          done
 
       - name: Create Release and Upload Assets
         env:
