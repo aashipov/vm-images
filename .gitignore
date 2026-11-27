@@ -6,3 +6,5 @@ kiwi-ng-arch/kiwi-cache/
 kiwi-ng-redos8/redos8
 kiwi-ng-redos8/kiwi-cache/
 *.qcow2
+kiwi-ng-alma9/alma9/
+kiwi-ng-alma9/kiwi-cache/dnf/

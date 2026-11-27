@@ -1,10 +1,10 @@
-# 1. Build the Debian-native KIWI builder image
+# 1. Build docker image
 
 ```sh
 docker build -t kiwi-debian .
 ```
 
-# 2. Run the build (clean /work/out first if a partial build exists)
+# 2. Run the build
 
 ```sh
 sudo rm -rf ./bookworm

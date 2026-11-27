@@ -52,6 +52,20 @@ jobs:
             echo "::endgroup::$profile"
           done
 
+      - name: Build Alma9 image
+        working-directory: kiwi-ng-alma9
+        run: |
+            docker build -t kiwi-alma9 .
+            sudo rm -rf ./alma9
+            docker run --rm --privileged \
+              -v /dev:/dev \
+              -v "$(pwd)":/work \
+              -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
+              kiwi-alma9 kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/alma9
+            docker run --rm -v "$(pwd)":/work kiwi-alma9 \
+              qemu-img convert -O qcow2 -c -o compression_type=zstd \
+              /work/alma9/alma9.x86_64-xfs.qcow2 /work/alma9-xfs.qcow2
+
       - name: Create Release and Upload Assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

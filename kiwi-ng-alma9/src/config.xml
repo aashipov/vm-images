@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<image schemaversion="7.4" name="alma9">
+    <description type="system">
+        <author>Admin</author>
+        <contact>admin@example.com</contact>
+        <specification>AlmaLinux 9 XFS</specification>
+    </description>
+
+    <preferences>
+            <type
+            image="oem"
+            filesystem="xfs"
+            firmware="efi"
+            gpt_hybrid_mbr="true"
+            format="qcow2"
+            efipartsize="128"
+            initrd_system="dracut"
+            kernelcmdline="selinux=0 console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0"
+        >
+                <bootloader
+                name="grub2"
+                input_console="console serial"
+                output_console="console serial"
+                serial_line="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+            />
+                <size unit="G">2</size>
+                <oemconfig>
+                    <oem-resize>false</oem-resize>
+                </oemconfig>
+            </type>
+            <version>xfs</version>
+            <packagemanager>dnf</packagemanager>
+            <rpm-check-signatures>false</rpm-check-signatures>
+        </preferences>
+
+    <repository alias="baseos" type="rpm-md" use_for_bootstrap="true">
+        <source
+            path="https://repo.almalinux.org/almalinux/9/BaseOS/$basearch/os/"
+        />
+    </repository>
+    <repository alias="appstream" type="rpm-md" use_for_bootstrap="true">
+        <source
+            path="https://repo.almalinux.org/almalinux/9/AppStream/$basearch/os/"
+        />
+    </repository>
+
+    <packages type="image">
+        <package name="kernel" />
+        <package name="xfsprogs" />
+        <package name="grub2-pc" />
+        <package name="grub2-pc-modules" />
+        <package name="grub2-efi-x64" />
+        <package name="grub2-efi-x64-modules" />
+        <package name="grub2-tools" />
+        <package name="shim-x64" />
+        <package name="efibootmgr" />
+        <package name="dracut" />
+        <package name="dracut-config-generic" />
+        <package name="cloud-init" />
+        <package name="cloud-utils-growpart" />
+        <package name="gdisk" />
+        <package name="openssh-server" />
+        <package name="openssh-clients" />
+        <package name="sudo" />
+        <package name="curl" />
+        <package name="ca-certificates" />
+        <package name="zstd" />
+        <package name="NetworkManager" />
+        <package name="qemu-guest-agent" />
+        <package name="chrony" />
+        <package name="nano" />
+        <package name="almalinux-release" />
+    </packages>
+
+    <packages type="bootstrap">
+        <package name="filesystem" />
+        <package name="almalinux-release" />
+        <package name="dnf" />
+        <package name="rpm" />
+        <package name="ca-certificates" />
+    </packages>
+
+    <users>
+        <user home="/root" name="root" password="root" pwdformat="plain" />
+    </users>
+</image>

@@ -1,4 +1,4 @@
-# 1. builder image
+# 1. Build docker image
 
 ```sh
 docker build -t kiwi-redos8 .
