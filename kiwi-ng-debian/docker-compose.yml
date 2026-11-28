@@ -11,8 +11,8 @@ services:
     command: |
       sh -c '
         set -e
-        rm -rf /work/${DISTRO:-bookworm}
-        kiwi-ng --profile=${DISTRO:-bookworm} --type=oem system build --description=/work/src --target-dir=/work/${DISTRO:-bookworm}
+        rm -rf /work/${PROFILE:-bookworm}
+        kiwi-ng --profile=${PROFILE:-bookworm} --type=oem system build --description=/work/src --target-dir=/work/${PROFILE:-bookworm}
       '
 
   compress-image:
@@ -28,5 +28,5 @@ services:
       sh -c '
         set -e
         qemu-img convert -O qcow2 -c -o compression_type=zstd \
-          /work/${DISTRO:-bookworm}/debian.x86_64-${DISTRO:-bookworm}-xfs.qcow2 /work/debian-${DISTRO:-bookworm}-xfs.qcow2
+          /work/${PROFILE:-bookworm}/debian.x86_64-${PROFILE:-bookworm}-xfs.qcow2 /work/debian-${PROFILE:-bookworm}-xfs.qcow2
       '

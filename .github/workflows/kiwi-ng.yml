@@ -1,4 +1,4 @@
-name: kiwi-xfs
+name: kiwi-ng
 
 on:
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
           for profile in bookworm bookworm-cloud trixie trixie-cloud
           do
             echo "::group:: $profile begin"
-            DISTRO=$profile docker compose up --build --abort-on-container-exit
+            PROFILE=$profile docker compose up --build --abort-on-container-exit
             echo "::group:: $profile end"
           done
 

@@ -11,8 +11,8 @@ services:
     command: |
       sh -c '
         set -e
-        rm -rf /work/${DISTRO:-alma9}
-        kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/${DISTRO:-alma9}
+        rm -rf /work/${PROFILE:-alma9}
+        kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/${PROFILE:-alma9}
       '
 
   compress-image:
@@ -28,5 +28,5 @@ services:
       sh -c '
         set -e
         qemu-img convert -O qcow2 -c -o compression_type=zstd \
-          /work/${DISTRO:-alma9}/${DISTRO:-alma9}.x86_64-xfs.qcow2 /work/${DISTRO:-alma9}-xfs.qcow2
+          /work/${PROFILE:-alma9}/${PROFILE:-alma9}.x86_64-xfs.qcow2 /work/${PROFILE:-alma9}-xfs.qcow2
       '
