@@ -1,0 +1,19 @@
+name: debos
+
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: debos-builder
+    devices:
+      - /dev/kvm:/dev/kvm
+    security_opt:
+      - label=disable
+    user: "${HOST_USER_UID}:${HOST_USER_GID}"
+    group_add:
+      - "${HOST_KVM_GROUP_GID}"
+    working_dir: /recipes
+    volumes:
+      - ./:/recipes
+    command: "${CMD}"

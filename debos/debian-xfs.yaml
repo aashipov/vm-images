@@ -95,9 +95,11 @@ actions:
       rm -f /etc/ssh/ssh_host_*
       cloud-init clean --logs
 
+  - action: run
+    chroot: true
+    command: echo "root:root" | chpasswd
 
   - action: run
     postprocess: true
     command: |
       qemu-img convert -f raw -O qcow2 -c -o compression_type=zstd {{ $image }}.raw "{{ $image }}.qcow2"
-      rm -f {{ $image }}.raw

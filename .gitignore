@@ -1,3 +1,6 @@
+*.qcow2
+*.raw
+debos/.env
 kiwi-ng-debian/bookworm*/
 kiwi-ng-debian/trixie*/
 kiwi-ng-debian/kiwi-cache/
@@ -5,6 +8,5 @@ kiwi-ng-arch/arch
 kiwi-ng-arch/kiwi-cache/
 kiwi-ng-redos8/redos8
 kiwi-ng-redos8/kiwi-cache/
-*.qcow2
 kiwi-ng-alma9/alma9/
 kiwi-ng-alma9/kiwi-cache/dnf/
