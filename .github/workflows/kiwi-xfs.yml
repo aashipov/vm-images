@@ -19,52 +19,23 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
 
-      - name: Build Arch image
+      - name: Arch
         working-directory: kiwi-ng-arch
-        run: |
-          docker build -t kiwi-arch .
-          sudo rm -rf ./arch
-          docker run --rm --privileged \
-            -v /dev:/dev \
-            -v "$(pwd)":/work \
-            -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
-            kiwi-arch kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/arch
-          docker run --rm \
-            -v "$(pwd)":/work \
-            kiwi-arch qemu-img convert -O qcow2 -c -o compression_type=zstd /work/arch/archlinux.x86_64-xfs.qcow2 /work/archlinux-xfs.qcow2
+        run: docker-compose up --build --abort-on-container-exit
 
-      - name: Build Debian images
+      - name: Debian
         working-directory: kiwi-ng-debian
         run: |
-          docker build -t kiwi-debian .
           for profile in bookworm bookworm-cloud trixie trixie-cloud
           do
-            echo "::group::Building $profile"
-            sudo rm -rf "./${profile}"
-            docker run --rm --privileged \
-              -v /dev:/dev \
-              -v "$(pwd)":/work \
-              -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
-              kiwi-debian kiwi-ng --profile="${profile}" --type=oem system build --description=/work/src --target-dir="/work/${profile}"
-            docker run --rm \
-              -v "$(pwd)":/work \
-              kiwi-debian qemu-img convert -O qcow2 -c -o compression_type=zstd "/work/${profile}/debian.x86_64-${profile}-xfs.qcow2" "/work/debian-${profile}-xfs.qcow2"
-            echo "::endgroup::$profile"
+            echo "::group:: $profile begin"
+            DISTRO=$profile docker-compose up --build --abort-on-container-exit
+            echo "::group:: $profile end"
           done
 
-      - name: Build Alma9 image
+      - name: Alma9
         working-directory: kiwi-ng-alma9
-        run: |
-            docker build -t kiwi-alma9 .
-            sudo rm -rf ./alma9
-            docker run --rm --privileged \
-              -v /dev:/dev \
-              -v "$(pwd)":/work \
-              -v "$(pwd)/kiwi-cache":/var/cache/kiwi \
-              kiwi-alma9 kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/alma9
-            docker run --rm -v "$(pwd)":/work kiwi-alma9 \
-              qemu-img convert -O qcow2 -c -o compression_type=zstd \
-              /work/alma9/alma9.x86_64-xfs.qcow2 /work/alma9-xfs.qcow2
+        run: docker-compose up --build --abort-on-container-exit
 
       - name: Create Release and Upload Assets
         env:

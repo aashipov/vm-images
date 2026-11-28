@@ -1,0 +1,32 @@
+services:
+  kiwi-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    volumes:
+      - /dev:/dev
+      - .:/work
+      - ./kiwi-cache:/var/cache/kiwi
+    command: |
+      sh -c '
+        set -e
+        rm -rf /work/${DISTRO:-arch}
+        kiwi-ng --type=oem system build --description=/work/src --target-dir=/work/${DISTRO:-arch}
+      '
+
+  compress-image:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      kiwi-build:
+        condition: service_completed_successfully
+    volumes:
+      - .:/work
+    command: |
+      sh -c '
+        set -e
+        qemu-img convert -O qcow2 -c -o compression_type=zstd \
+          /work/${DISTRO:-arch}/${DISTRO:-arch}.x86_64-xfs.qcow2 /work/${DISTRO:-arch}-xfs.qcow2
+      '
