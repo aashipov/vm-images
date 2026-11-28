@@ -21,7 +21,7 @@ jobs:
 
       - name: Arch
         working-directory: kiwi-ng-arch
-        run: docker-compose up --build --abort-on-container-exit
+        run: docker compose up --build --abort-on-container-exit
 
       - name: Debian
         working-directory: kiwi-ng-debian
@@ -29,13 +29,13 @@ jobs:
           for profile in bookworm bookworm-cloud trixie trixie-cloud
           do
             echo "::group:: $profile begin"
-            DISTRO=$profile docker-compose up --build --abort-on-container-exit
+            DISTRO=$profile docker compose up --build --abort-on-container-exit
             echo "::group:: $profile end"
           done
 
       - name: Alma9
         working-directory: kiwi-ng-alma9
-        run: docker-compose up --build --abort-on-container-exit
+        run: docker compose up --build --abort-on-container-exit
 
       - name: Create Release and Upload Assets
         env:
